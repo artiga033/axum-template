@@ -5,15 +5,15 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-axum = { version = "0.8.4", features = ["macros"] }
+axum = { version = "0.8.6", features = ["macros"] }
 dotenvy = "0.15.7"
 envy = "0.4.2"
-rust-embed = { version = "8.7.2", features = ["mime-guess"] }
-serde = { version = "1.0.219", features = ["derive"] }
-snafu = "0.8.6"
-tokio = { version = "1.46.1", features = ["macros", "rt-multi-thread", "net", "signal"] }
+rust-embed = { version = "8.8.0", features = ["mime-guess"] }
+serde = { version = "1.0.228", features = ["derive"] }
+snafu = "0.8.9"
+tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread", "net", "signal"] }
 tracing = "0.1.41"
-tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
 utoipa = { version = "5.4.0", features = ["axum_extras"] }
 utoipa-axum = "0.2.0"
 utoipa-scalar = { version = "0.3.0", features = ["axum"] }
