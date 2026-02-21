@@ -17,6 +17,8 @@ use serde::Serialize;
 use utoipa::ToSchema;
 
 pub mod frontend;
+#[cfg(feature = "example")]
+pub mod todo;
 
 /// Health check
 ///

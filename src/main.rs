@@ -12,7 +12,7 @@ async fn main() -> Result<(), Error> {
         .init();
 
     let config = lib::config::Config::from_env().context(LoadConfigSnafu)?;
-    let state = lib::state::AppState::from_rt_config(config.runtime);
+    let state = lib::state::AppState::from_config(&config).await?;
     let (router, api) = lib::route::router().with_state(state).split_for_parts();
     let router = router.merge(Scalar::with_url("/api/docs", api));
 
@@ -48,6 +48,8 @@ enum Error {
         source: std::io::Error,
         on: std::net::SocketAddr,
     },
+    #[snafu(transparent)]
+    AppState { source: lib::state::Error },
 }
 
 struct ExitSignals {

@@ -7,7 +7,13 @@ use axum::{
 #[folder = "src/handlers/frontend"]
 struct Site;
 
-const INDEX_HTML: &str = "index.html";
+const INDEX_HTML: &str = {
+    if cfg!(feature = "example") {
+        "index_example.html"
+    } else {
+        "index.html"
+    }
+};
 pub async fn static_handler(uri: Uri) -> impl IntoResponse {
     let path = uri.path().trim_start_matches('/');
 

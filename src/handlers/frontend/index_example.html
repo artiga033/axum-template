@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <style>
+        :root {
+            --color-background: #f4f4f5;
+            --color-surface-base: #ffffff;
+            --color-surface-hover: #fafafa;
+            --color-text-main: #1a1a1a;
+            --color-text-muted: #737373;
+            --color-border-main: #d4d4d8;
+            --color-primary-base: #ccbbff;
+            --color-primary-hover: #b8a3ff;
+            --color-primary-text: #2a1a5e;
+            --color-accent-base: #ddffbb;
+            --color-accent-text: #2e4a11;
+            --color-danger-base: #ff6b6b;
+            --color-danger-text: #ffffff;
+            --shadow-elevation-small: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-elevation-medium: 0 4px 8px rgba(0, 0, 0, 0.08);
+            --transition-standard: 0.3s ease;
+            --transition-bounce: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        [data-theme="dark"] {
+            --color-background: #121212;
+            --color-surface-base: #1e1e1e;
+            --color-surface-hover: #2a2a2a;
+            --color-text-main: #e4e4e7;
+            --color-text-muted: #a1a1aa;
+            --color-border-main: #3f3f46;
+            --color-primary-hover: #b39cf0;
+            --color-primary-text: #1a0f3d;
+            --color-accent-text: #1a2e05;
+            --color-danger-base: #e55353;
+            --shadow-elevation-small: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --shadow-elevation-medium: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            border-radius: 0 !important;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            background: var(--color-background);
+            color: var(--color-text-main);
+            line-height: 1.6;
+            transition: all var(--transition-standard);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        button,
+        input {
+            font: inherit;
+            border: none;
+            outline: none;
+        }
+
+        .application-container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--color-primary-base);
+        }
+
+        .application-header h1 {
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+
+        .theme-switcher-container {
+            display: flex;
+            border: 1px solid var(--color-border-main);
+            background: var(--color-surface-base);
+        }
+
+        .theme-button {
+            padding: 0.4rem 0.8rem;
+            background: transparent;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all var(--transition-standard);
+        }
+
+        .theme-button:hover {
+            background: var(--color-surface-hover);
+            color: var(--color-text-main);
+        }
+
+        .theme-button.active-theme {
+            background: var(--color-primary-base);
+            color: var(--color-primary-text);
+        }
+
+        .todo-input-form {
+            display: flex;
+            box-shadow: var(--shadow-elevation-small);
+            transition: box-shadow var(--transition-standard);
+        }
+
+        .todo-input-form:focus-within {
+            box-shadow: var(--shadow-elevation-medium);
+        }
+
+        .todo-text-input {
+            flex: 1;
+            padding: 1rem;
+            background: var(--color-surface-base);
+            color: var(--color-text-main);
+            border: 1px solid var(--color-border-main);
+            border-right: none;
+            transition: all var(--transition-standard);
+        }
+
+        .todo-text-input::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        .todo-text-input:focus {
+            border-color: var(--color-primary-base);
+        }
+
+        .button-add-task {
+            padding: 0 2rem;
+            font-weight: 600;
+            background: var(--color-primary-base);
+            color: var(--color-primary-text);
+            cursor: pointer;
+            transition: all var(--transition-standard);
+        }
+
+        .button-add-task:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .button-add-task:active {
+            transform: scale(0.98);
+        }
+
+        .todo-items-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .todo-list-item {
+            display: flex;
+            align-items: center;
+            background: var(--color-surface-base);
+            border: 1px solid var(--color-border-main);
+            padding: 1rem;
+            box-shadow: var(--shadow-elevation-small);
+            transition: all var(--transition-bounce);
+            animation: slideInAnimation 0.4s ease forwards;
+        }
+
+        .todo-list-item:hover {
+            box-shadow: var(--shadow-elevation-medium);
+            transform: translateY(-2px);
+            border-color: var(--color-primary-base);
+        }
+
+        .todo-list-item.completed-item {
+            background: var(--color-accent-base);
+            border-color: var(--color-accent-base);
+            color: var(--color-accent-text);
+        }
+
+        .checkbox-container {
+            position: relative;
+            width: 24px;
+            height: 24px;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            opacity: 0;
+            position: absolute;
+        }
+
+        .checkbox-custom-mark {
+            position: absolute;
+            inset: 0;
+            background: var(--color-surface-base);
+            border: 2px solid var(--color-border-main);
+            transition: all var(--transition-standard);
+        }
+
+        .todo-list-item:hover .checkbox-custom-mark {
+            border-color: var(--color-primary-base);
+        }
+
+        .checkbox-container input:checked~.checkbox-custom-mark {
+            background: var(--color-primary-text);
+            border-color: var(--color-primary-text);
+        }
+
+        .checkbox-custom-mark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 7px;
+            top: 3px;
+            width: 6px;
+            height: 12px;
+            border: solid var(--color-accent-base);
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .checkbox-container input:checked~.checkbox-custom-mark:after {
+            display: block;
+        }
+
+        .todo-item-description {
+            flex: 1;
+            font-size: 1.05rem;
+            transition: color var(--transition-standard);
+        }
+
+        .todo-list-item.completed-item .todo-item-description {
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+
+        .button-delete-task {
+            background: transparent;
+            color: var(--color-text-muted);
+            border: 1px solid transparent;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-standard);
+        }
+
+        .button-delete-task:hover {
+            background: var(--color-danger-base);
+            color: var(--color-danger-text);
+            border-color: var(--color-danger-base);
+        }
+
+        .status-message-display {
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+
+        @keyframes slideInAnimation {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOutAnimation {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+        }
+
+        .deleting-animation {
+            animation: fadeOutAnimation 0.3s ease forwards;
+        }
+
+        @media(max-width: 600px) {
+            .application-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .theme-switcher-container {
+                align-self: stretch;
+            }
+
+            .theme-button {
+                flex: 1;
+            }
+
+            .todo-input-form {
+                flex-direction: column;
+            }
+
+            .todo-text-input {
+                border-right: 1px solid var(--color-border-main);
+                border-bottom: none;
+            }
+
+            .button-add-task {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="application-container">
+        <header class="application-header">
+            <h1>Focus Tasks</h1>
+            <div class="theme-switcher-container">
+                <button class="theme-button" data-theme-value="light">Light</button>
+                <button class="theme-button" data-theme-value="dark">Dark</button>
+                <button class="theme-button" data-theme-value="system">System</button>
+            </div>
+        </header>
+        <main>
+            <form class="todo-input-form" id="todo-creation-form">
+                <input type="text" id="todo-description-input" class="todo-text-input"
+                    placeholder="What needs to be done?" required autocomplete="off">
+                <button type="submit" class="button-add-task">ADD</button>
+            </form>
+            <div id="task-status-message" class="status-message-display">Loading tasks...</div>
+            <ul class="todo-items-list" id="todo-items-container"></ul>
+        </main>
+    </div>
+    <script>
+        const executeApiRequest = async (apiPathSegment, httpMethod = 'GET', requestBodyPayload = null) => {
+            const requestOptions = { method: httpMethod, headers: {} };
+            if (requestBodyPayload) {
+                requestOptions.headers['Content-Type'] = 'application/json';
+                requestOptions.body = JSON.stringify(requestBodyPayload);
+            }
+
+            const serverResponse = await fetch('/api/todos' + apiPathSegment, requestOptions);
+            if (!serverResponse.ok) {
+                throw new Error('Server returned an error status code');
+            }
+            return serverResponse.status === 204 ? null : serverResponse.json();
+        };
+
+        const TodoApiClient = {
+            fetchAllTodos: () => executeApiRequest(''),
+            createNewTodo: (descriptionText) => executeApiRequest('', 'POST', { description: descriptionText }),
+            deleteTodoById: (todoIdIdentifier) => executeApiRequest(`/${todoIdIdentifier}`, 'DELETE'),
+            markTodoAsCompleted: (todoIdIdentifier) => executeApiRequest(`/${todoIdIdentifier}/done`, 'PUT'),
+            markTodoAsPending: (todoIdIdentifier) => executeApiRequest(`/${todoIdIdentifier}/done`, 'DELETE')
+        };
+
+        let applicationTodoListState = [];
+        let currentApplicationTheme = localStorage.getItem('application-theme-preference') || 'system';
+
+        const applyApplicationTheme = (targetThemeValue) => {
+            currentApplicationTheme = targetThemeValue;
+            localStorage.setItem('application-theme-preference', targetThemeValue);
+
+            const allThemeButtons = document.querySelectorAll('.theme-button');
+            allThemeButtons.forEach(themeButton => {
+                const isThemeActive = themeButton.getAttribute('data-theme-value') === targetThemeValue;
+                themeButton.classList.toggle('active-theme', isThemeActive);
+            });
+
+            let resolvedThemeValue = targetThemeValue;
+            if (targetThemeValue === 'system') {
+                const systemPrefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                resolvedThemeValue = systemPrefersDarkScheme ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', resolvedThemeValue);
+        };
+
+        applyApplicationTheme(currentApplicationTheme);
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (currentApplicationTheme === 'system') {
+                applyApplicationTheme('system');
+            }
+        });
+
+        const themeButtonsList = document.querySelectorAll('.theme-button');
+        themeButtonsList.forEach(themeButton => {
+            themeButton.addEventListener('click', () => {
+                const selectedThemeValue = themeButton.getAttribute('data-theme-value');
+                applyApplicationTheme(selectedThemeValue);
+            });
+        });
+
+        const escapeHtmlSpecialCharacters = (inputString) => {
+            const characterReplacementMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+            return inputString.replace(/[&<>'"]/g, matchedCharacter => characterReplacementMap[matchedCharacter]);
+        };
+
+        const generateTodoItemHtmlString = (todoItemObject) => {
+            const completedClassName = todoItemObject.done ? 'completed-item' : '';
+            const checkedAttribute = todoItemObject.done ? 'checked' : '';
+            const escapedTodoDescription = escapeHtmlSpecialCharacters(todoItemObject.description);
+
+            return `
+        <li class="todo-list-item ${completedClassName}" data-todo-id="${todoItemObject.id}">
+          <label class="checkbox-container">
+            <input type="checkbox" ${checkedAttribute}>
+            <span class="checkbox-custom-mark"></span>
+          </label>
+          <span class="todo-item-description">${escapedTodoDescription}</span>
+          <button class="button-delete-task" aria-label="Delete task">DELETE</button>
+        </li>
+      `;
+        };
+
+        const renderTodoItemsToDom = () => {
+            const statusMessageDisplayElement = document.querySelector('#task-status-message');
+            const todoItemsContainerElement = document.querySelector('#todo-items-container');
+
+            const hasTodoItems = applicationTodoListState.length > 0;
+            statusMessageDisplayElement.style.display = hasTodoItems ? 'none' : 'block';
+            statusMessageDisplayElement.textContent = hasTodoItems ? '' : 'No tasks here. You are all caught up!';
+
+            const generatedHtmlItemsArray = applicationTodoListState.map(generateTodoItemHtmlString);
+            todoItemsContainerElement.innerHTML = generatedHtmlItemsArray.join('');
+        };
+
+        const initializeApplication = async () => {
+            try {
+                applicationTodoListState = await TodoApiClient.fetchAllTodos();
+                renderTodoItemsToDom();
+            } catch (initializationError) {
+                const statusMessageDisplayElement = document.querySelector('#task-status-message');
+                statusMessageDisplayElement.textContent = 'Error loading tasks. Please make sure the backend is running.';
+                statusMessageDisplayElement.style.color = 'var(--color-danger-base)';
+            }
+        };
+
+        initializeApplication();
+
+        const todoCreationFormElement = document.querySelector('#todo-creation-form');
+        todoCreationFormElement.addEventListener('submit', async (formSubmitEvent) => {
+            formSubmitEvent.preventDefault();
+
+            const todoDescriptionInputElement = document.querySelector('#todo-description-input');
+            const newTodoDescriptionText = todoDescriptionInputElement.value.trim();
+
+            if (!newTodoDescriptionText) {
+                return;
+            }
+
+            todoDescriptionInputElement.disabled = true;
+            try {
+                const successfullyCreatedTodoItem = await TodoApiClient.createNewTodo(newTodoDescriptionText);
+                applicationTodoListState.push(successfullyCreatedTodoItem);
+                todoDescriptionInputElement.value = '';
+                renderTodoItemsToDom();
+            } catch (todoCreationError) {
+                alert('Failed to add the requested task.');
+            } finally {
+                todoDescriptionInputElement.disabled = false;
+                todoDescriptionInputElement.focus();
+            }
+        });
+
+        const todoItemsContainerElement = document.querySelector('#todo-items-container');
+        todoItemsContainerElement.addEventListener('click', async (mouseClickEvent) => {
+            const clickedTodoListItemElement = mouseClickEvent.target.closest('.todo-list-item');
+            if (!clickedTodoListItemElement) {
+                return;
+            }
+
+            const todoItemIdIdentifier = parseInt(clickedTodoListItemElement.getAttribute('data-todo-id'), 10);
+
+            const isDeleteButtonClicked = mouseClickEvent.target.closest('.button-delete-task');
+            if (isDeleteButtonClicked) {
+                clickedTodoListItemElement.classList.add('deleting-animation');
+                try {
+                    await TodoApiClient.deleteTodoById(todoItemIdIdentifier);
+                    const filterOutDeletedTodo = currentTodo => currentTodo.id !== todoItemIdIdentifier;
+                    applicationTodoListState = applicationTodoListState.filter(filterOutDeletedTodo);
+                    setTimeout(renderTodoItemsToDom, 300);
+                } catch (todoDeletionError) {
+                    clickedTodoListItemElement.classList.remove('deleting-animation');
+                    alert('Failed to delete the selected task.');
+                }
+                return;
+            }
+
+            const isCheckboxElementClicked = mouseClickEvent.target.matches('input[type="checkbox"]');
+            if (isCheckboxElementClicked) {
+                const isCheckboxCurrentlyChecked = mouseClickEvent.target.checked;
+                try {
+                    if (isCheckboxCurrentlyChecked) {
+                        await TodoApiClient.markTodoAsCompleted(todoItemIdIdentifier);
+                    } else {
+                        await TodoApiClient.markTodoAsPending(todoItemIdIdentifier);
+                    }
+
+                    const findMatchingTodoItem = currentTodo => currentTodo.id === todoItemIdIdentifier;
+                    const targetTodoItemObject = applicationTodoListState.find(findMatchingTodoItem);
+                    targetTodoItemObject.done = isCheckboxCurrentlyChecked;
+
+                    clickedTodoListItemElement.classList.toggle('completed-item', isCheckboxCurrentlyChecked);
+                } catch (todoStatusUpdateError) {
+                    mouseClickEvent.target.checked = !isCheckboxCurrentlyChecked;
+                    alert('Failed to update the completion status of the selected task.');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

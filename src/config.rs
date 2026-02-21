@@ -24,6 +24,7 @@ pub struct Config {
 pub struct Bootstrap {
     #[serde(default = "serde_defaults::default_listen")]
     pub listen: std::net::SocketAddr,
+    pub database_url: String,
 }
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct Runtime {}
