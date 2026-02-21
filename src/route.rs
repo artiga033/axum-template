@@ -10,6 +10,11 @@ pub struct ApiDoc;
 
 pub fn router<S: Send + Sync + Clone + 'static>() -> OpenApiRouter<S> {
     OpenApiRouter::with_openapi(ApiDoc::openapi())
-        .nest("/api/", OpenApiRouter::new().routes(routes!(h::healthz)))
+        .nest(
+            "/api/",
+            OpenApiRouter::new()
+                .routes(routes!(h::healthz))
+                .routes(routes!(h::version)),
+        )
         .fallback(h::frontend::static_handler)
 }
